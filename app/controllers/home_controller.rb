@@ -19,6 +19,9 @@ class HomeController < ApplicationController
 	noko = Nokogiri::HTML(toUtf8(response.body))
 	# puts noko
 
+	f = File.new("log.txt", "w")
+	
+
 	Axlsx::Package.new do |p|
 	  p.workbook.add_worksheet(:name => "HKEx") do |sheet|
 		sheet.add_row ["Event Type", "Board Name", "PDF Source Link"]
@@ -33,15 +36,17 @@ class HomeController < ApplicationController
 			if notice.include? word
 				# sheet.add_row ['#{company_name}', '#{notice}']
 				sheet.add_row ["#{company_name}", "#{notice}", nil]
-				@hash[company_name] = notice
-				puts company_name
-				puts notice
+				@hash["#{company_name}"] = notice
+				# puts company_name
+				# puts notice
+				f.write("#{company_name} ++++ #{notice}\n")     #=> 10
 				break
 			end
 		  end
 		end
 	  end
 	  p.serialize('simple.xlsx')
+	  f.close
 	end
 
 	response do |format| 

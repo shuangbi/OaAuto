@@ -1,0 +1,105 @@
+﻿# encoding : utf-8
+require 'net/http'
+require 'nokogiri'
+require 'axlsx'
+
+class HomeController < ApplicationController
+  def index
+	
+  end
+
+  def start
+  	#uri = URI('http://www.hkexnews.hk/listedco/listconews/mainindex/SEHK_LISTEDCO_DATETIME_TODAY_C.HTM')
+	response = fetch('http://www.hkexnews.hk/listedco/listconews/mainindex/SEHK_LISTEDCO_DATETIME_TODAY_C.HTM')
+	keywords = ["??", "??", "????", "????", "????", "??", "????", "????", "????"]
+	# puts response.body
+	# @response = response.body
+	noko = Nokogiri::HTML(response.body)
+	# puts noko
+
+	Axlsx::Package.new do |p|
+	  p.workbook.add_worksheet(:name => "Pie Chart") do |sheet|
+		sheet.add_row ["Event Type", "Board Name", "PDF Source Link"]
+		
+		# Get all the links from response
+		noko.css('tr.row0, tr.row1').each do |tablerow|
+		  # puts "#{link.content}, #{link['href']}"
+		  company_name =  tablerow.css('td')[2].text
+		  notice = tablerow.css('td')[3].text
+	  
+		  keywords.each do |word|
+			if notice.include? word
+				sheet.add_row [company_name, notice] 
+				# puts company_name
+				# puts notice
+				break
+			end
+		  end
+		end
+	  end
+	  p.serialize('simple.xlsx')
+	end
+
+	response do |format| 
+		format.js
+	end
+  end
+
+  def download
+  end
+
+private
+	def fetch(uri_str, limit = 10)
+	  # You should choose better exception.
+	  raise ArgumentError, 'HTTP redirect too deep' if limit == 0
+
+	  url = URI.parse(URI.encode(uri_str.strip))
+	  puts url
+
+	  #get path
+	  headers = {}
+	  
+	  # set http_proxy
+	  # proxy_addr = '10.13.113.144'
+	  # proxy_port = 8080
+	  proxy_addr = '10.40.14.56'
+	  proxy_port = 80
+
+	  req = Net::HTTP::Get.new(url.path,headers)
+
+	  #start TCP/IP
+	  response = Net::HTTP.new(url.host, url.port, proxy_addr, proxy_port).start { |http|
+	    # always proxy via your.proxy.addr:8080
+		http.request(req)
+	  }
+
+	  case response
+	  when Net::HTTPSuccess
+	    then #print final redirect to a file
+	    # puts "this is location" + uri_str
+	    # puts "this is the host #{url.host}"
+	    # puts "this is the path #{url.path}"
+
+	    return response
+	    # if you get a 302 response
+	  when Net::HTTPRedirection
+	    then
+	    puts "this is redirect" + response['location']
+	    return fetch(response['location'], limit-1)
+	  else
+	    response.error!
+	  end
+	end
+end
+
+# res = Net::HTTP.get_response(uri)
+# puts res.body if res.is_a?(Net::HTTPSuccess)
+
+# require 'iconv' unless String.method_defined?(:encode)
+# if String.method_defined?(:encode)
+  # file_contents.encode!('UTF-8', 'UTF-8', :invalid => :replace)
+# else
+  # ic = Iconv.new('UTF-8', 'UTF-8//IGNORE')
+  # file_contents = ic.iconv(file_contents)
+# end
+

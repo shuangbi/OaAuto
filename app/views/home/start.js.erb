@@ -1,1 +1,8 @@
-$('#response').html(@response);
+$('#response #tr').remove();
+<% @hash.each do |key| %>
+	$('#response #row1').after('<tr><td><%= key %></td><td><%= @hash[key] %></td><td></td></tr>');
+<% end %>
+
+$('#tab').dataTable({
+	"bPaginate": false
+});

@@ -11,14 +11,15 @@ class HomeController < ApplicationController
   def start
   	#uri = URI('http://www.hkexnews.hk/listedco/listconews/mainindex/SEHK_LISTEDCO_DATETIME_TODAY_C.HTM')
 	response = fetch('http://www.hkexnews.hk/listedco/listconews/mainindex/SEHK_LISTEDCO_DATETIME_TODAY_C.HTM')
-	keywords = ["??", "??", "????", "????", "????", "??", "????", "????", "????"]
+	keywords = ["更改", "变更", "披露交易", "关连交易", "主要交易", "收购", "营业地址", "注册地址", "重大收购"]
+	@hash = Hash.new
 	# puts response.body
 	# @response = response.body
 	noko = Nokogiri::HTML(response.body)
 	# puts noko
 
 	Axlsx::Package.new do |p|
-	  p.workbook.add_worksheet(:name => "Pie Chart") do |sheet|
+	  p.workbook.add_worksheet(:name => "HKEx") do |sheet|
 		sheet.add_row ["Event Type", "Board Name", "PDF Source Link"]
 		
 		# Get all the links from response
@@ -29,9 +30,11 @@ class HomeController < ApplicationController
 	  
 		  keywords.each do |word|
 			if notice.include? word
-				sheet.add_row [company_name, notice] 
-				# puts company_name
-				# puts notice
+				# sheet.add_row ['#{company_name}', '#{notice}']
+				sheet.add_row ["#{company_name}", "#{notice}", nil]
+				@hash[company_name] = notice
+				puts company_name
+				puts notice
 				break
 			end
 		  end
@@ -60,15 +63,18 @@ private
 	  headers = {}
 	  
 	  # set http_proxy
-	  # proxy_addr = '10.13.113.144'
-	  # proxy_port = 8080
-	  proxy_addr = '10.40.14.56'
-	  proxy_port = 80
+	  proxy_addr = Array.new
+	  proxy_addr[0] = '10.13.113.144'
+	  proxy_addr[1] = '10.40.14.56'
+
+	  proxy_port = Array.new
+	  proxy_port[0] = 8080
+	  proxy_port[1] = 80
 
 	  req = Net::HTTP::Get.new(url.path,headers)
 
 	  #start TCP/IP
-	  response = Net::HTTP.new(url.host, url.port, proxy_addr, proxy_port).start { |http|
+	  response = Net::HTTP.new(url.host, url.port, proxy_addr[0], proxy_port[0]).start { |http|
 	    # always proxy via your.proxy.addr:8080
 		http.request(req)
 	  }

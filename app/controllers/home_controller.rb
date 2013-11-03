@@ -1,6 +1,7 @@
 ﻿# encoding : utf-8
 require 'net/http'
 require 'nokogiri'
+require 'rchardet19'
 require 'axlsx'
 
 class HomeController < ApplicationController
@@ -15,7 +16,7 @@ class HomeController < ApplicationController
 	@hash = Hash.new
 	# puts response.body
 	# @response = response.body
-	noko = Nokogiri::HTML(response.body)
+	noko = Nokogiri::HTML(toUtf8(response.body))
 	# puts noko
 
 	Axlsx::Package.new do |p|
@@ -84,7 +85,8 @@ private
 	  req = Net::HTTP::Get.new(url.path,headers)
 
 	  #start TCP/IP
-	  response = Net::HTTP.new(url.host, url.port, proxy_addr[0], proxy_port[0]).start { |http|
+	  # response = Net::HTTP.new(url.host, url.port, proxy_addr[0], proxy_port[0]).start { |http|
+	  response = Net::HTTP.new(url.host, url.port, nil, nil).start { |http|
 	    # always proxy via your.proxy.addr:8080
 		http.request(req)
 	  }

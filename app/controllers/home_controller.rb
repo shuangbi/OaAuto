@@ -52,6 +52,16 @@ class HomeController < ApplicationController
   end
 
 private
+
+	def toUtf8(_string)
+	    cd = CharDet.detect(_string)      #用于检测编码格式  在gem rchardet9里
+	    if cd.confidence > 0.6
+	      _string.force_encoding(cd.encoding)
+	    end
+	    _string.encode!("utf-8", :undef => :replace, :replace => "?", :invalid => :replace)
+	    return _string
+	end
+
 	def fetch(uri_str, limit = 10)
 	  # You should choose better exception.
 	  raise ArgumentError, 'HTTP redirect too deep' if limit == 0

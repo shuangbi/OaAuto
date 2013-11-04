@@ -31,15 +31,17 @@ class HomeController < ApplicationController
 		  # puts "#{link.content}, #{link['href']}"
 		  company_name =  tablerow.css('td')[2].text
 		  notice = tablerow.css('td')[3].text
+		  # link = tablerow.css('a[href]').value
+		  link = tablerow.css('a').map { |link| link['href'] }
 	  
 		  keywords.each do |word|
 			if notice.include? word
 				# sheet.add_row ['#{company_name}', '#{notice}']
 				sheet.add_row ["#{company_name}", "#{notice}", nil]
-				@hash["#{company_name}"] = notice
+				@hash["#{company_name}"] = [notice,  ]
 				# puts company_name
 				# puts notice
-				f.write("#{company_name} ++++ #{notice}\n")     #=> 10
+				f.write("#{company_name} ++++ #{notice} ++++ #{link}\n")     #=> 10
 				break
 			end
 		  end
@@ -90,8 +92,8 @@ private
 	  req = Net::HTTP::Get.new(url.path,headers)
 
 	  #start TCP/IP
-	  # response = Net::HTTP.new(url.host, url.port, proxy_addr[0], proxy_port[0]).start { |http|
-	  response = Net::HTTP.new(url.host, url.port, nil, nil).start { |http|
+	  response = Net::HTTP.new(url.host, url.port, proxy_addr[0], proxy_port[0]).start { |http|
+	  # response = Net::HTTP.new(url.host, url.port, nil, nil).start { |http|
 	    # always proxy via your.proxy.addr:8080
 		http.request(req)
 	  }

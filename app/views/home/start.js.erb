@@ -1,8 +1,9 @@
 $('#response #tr').remove();
 <% @hash.each do |key, value| %>
-	$('#response #last').before('<tr><td><%= j key %></td><td><%= j value %>"</td><td></td></tr>');
+	$('#response #last').before('<tr><td><%= j key %></td><td><%= j value[0] %>"</td><td><%= j value[1] %></td></tr>');
 <% end %>
 
 $('#tab').dataTable({
 	"bPaginate": false
 });
+

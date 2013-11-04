@@ -1,15 +1,14 @@
-<h2>Click <span><%= link_to "Start", home_start_path, :remote => true %></span> to fetch data</h2>
 <div id="response">
 	<table id="tab" class="table table-bordered table-striped table-condensed">
 		<thead>
 			<tr>
 				<th>股份名稱</th>
 				<th>文件類型</th>
-				<th></th>
+				<th>文档链接</th>
 			</tr>
 		</thead>
 		<tbody id='tbody'>
-			<tr id='last'>
+			<tr id='last', class="hidden">
 				<td></td>
 				<td></td>
 				<td></td>

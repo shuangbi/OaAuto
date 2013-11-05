@@ -30,13 +30,15 @@ class HomeController < ApplicationController
 		noko.css('tr.row0, tr.row1').each do |tablerow|
 		  # puts "#{link.content}, #{link['href']}"
 		  company_name =  tablerow.css('td')[2].text
-		  notice = tablerow.css('td')[3].text
-	  
+		  notice = tablerow.css('div#hdLine').text
+      news = tablerow.css('a.news').text
+      href = tablerow.css('a.news')[0]['href']
+
 		  keywords.each do |word|
 			if notice.include? word
 				# sheet.add_row ['#{company_name}', '#{notice}']
-				sheet.add_row ["#{company_name}", "#{notice}", nil]
-				@hash["#{company_name}"] = notice
+				sheet.add_row ["#{company_name}", "#{notice}", "#{news}"]
+				@hash["#{company_name}"] = notice + ',' + news + ',http://www.hkexnews.hk' + href
 				# puts company_name
 				# puts notice
 				f.write("#{company_name} ++++ #{notice}\n")     #=> 10

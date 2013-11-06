@@ -14,33 +14,24 @@ class HomeController < ApplicationController
 	response = fetch('http://www.hkexnews.hk/listedco/listconews/mainindex/SEHK_LISTEDCO_DATETIME_TODAY_C.HTM')
 	keywords = ["更改", "变更", "披露交易", "关连交易", "主要交易", "收购", "营业地址", "注册地址", "重大收购"]
 	@hash = Hash.new
-	# puts response.body
-	# @response = response.body
 	noko = Nokogiri::HTML(toUtf8(response.body))
-	# puts noko
-
 	f = File.new("log.txt", "w")
 	
-
 	Axlsx::Package.new do |p|
 	  p.workbook.add_worksheet(:name => "HKEx") do |sheet|
 		sheet.add_row ["Event Type", "Board Name", "PDF Source Link"]
 		
 		# Get all the links from response
 		noko.css('tr.row0, tr.row1').each do |tablerow|
-		  # puts "#{link.content}, #{link['href']}"
 		  company_name =  tablerow.css('td')[2].text
-		  notice = tablerow.css('td')[3].text
-		  # link = tablerow.css('a[href]').value
-		  link = tablerow.css('a').map { |link| link['href'] }
-	  
+		  notice = tablerow.css('div#hdLine').text
+	      news = tablerow.css('a.news').text
+	      href = tablerow.css('a.news')[0]['href']
+
 		  keywords.each do |word|
 			if notice.include? word
-				# sheet.add_row ['#{company_name}', '#{notice}']
-				sheet.add_row ["#{company_name}", "#{notice}", nil]
-				@hash["#{company_name}"] = [notice,  ]
-				# puts company_name
-				# puts notice
+				sheet.add_row ["#{company_name}", "#{notice}", "#{news}"]
+				@hash["#{company_name}"] = notice + ',' + news + ',http://www.hkexnews.hk' + href
 				f.write("#{company_name} ++++ #{notice} ++++ #{link}\n")     #=> 10
 				break
 			end

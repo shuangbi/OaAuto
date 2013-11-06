@@ -1,6 +1,6 @@
 $('#response #tr').remove();
 <% @hash.each do |key, value| %>
-<% news_array = value.split(',') %>
+<% news_array = value.split(';') %>
 	$('#response #last').before('<tr><td><%= j key %></td><td><%= j news_array[0] %><%= j news_array[1] %></td><td><%= link_to news_array[2], news_array[2], :target => "_blank" %></td></tr>');
 <% end %>
 

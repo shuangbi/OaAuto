@@ -31,8 +31,8 @@ class HomeController < ApplicationController
 		  keywords.each do |word|
 			if notice.include? word
 				sheet.add_row ["#{company_name}", "#{notice}", "#{news}"]
-				@hash["#{company_name}"] = notice + ',' + news + ',http://www.hkexnews.hk' + href
-				f.write("#{company_name} ++++ #{notice} ++++ #{link}\n")     #=> 10
+				@hash["#{company_name}"] = notice + ';' + news + ';' + 'http://www.hkexnews.hk' + href
+				f.write("#{company_name} ++++ #{notice} ++++ #{news}++++ #{href}\n")     #=> 10
 				break
 			end
 		  end
@@ -83,7 +83,8 @@ private
 	  req = Net::HTTP::Get.new(url.path,headers)
 
 	  #start TCP/IP
-	  response = Net::HTTP.new(url.host, url.port, proxy_addr[0], proxy_port[0]).start { |http|
+	  proxy_index = 1
+	  response = Net::HTTP.new(url.host, url.port, proxy_addr[proxy_index], proxy_port[proxy_index]).start { |http|
 	  # response = Net::HTTP.new(url.host, url.port, nil, nil).start { |http|
 	    # always proxy via your.proxy.addr:8080
 		http.request(req)

@@ -15,32 +15,16 @@ class HomeController < ApplicationController
 	keywords = ["更改", "变更", "披露交易", "关连交易", "主要交易", "收购", "营业地址", "注册地址", "重大收购"]
 	@hash = Hash.new
 	noko = Nokogiri::HTML(toUtf8(response.body))
-	f = File.new("log.txt", "w")
-	
-	Axlsx::Package.new do |p|
-	  p.workbook.add_worksheet(:name => "HKEx") do |sheet|
-		sheet.add_row ["Event Type", "Board Name", "PDF Source Link"]
-		
-		# Get all the links from response
-		noko.css('tr.row0, tr.row1').each do |tablerow|
-		  company_name =  tablerow.css('td')[2].text
-		  notice = tablerow.css('div#hdLine').text
-	      news = tablerow.css('a.news').text
-	      href = tablerow.css('a.news')[0]['href']
 
-		  keywords.each do |word|
-			if notice.include? word
-				sheet.add_row ["#{company_name}", "#{notice}", "#{news}"]
-				@hash["#{company_name}"] = notice + ';' + news + ';' + 'http://www.hkexnews.hk' + href
-				f.write("#{company_name} ++++ #{notice} ++++ #{news}++++ #{href}\n")     #=> 10
-				break
-			end
-		  end
-		end
-	  end
-	  p.serialize('simple.xlsx')
-	  f.close
-	end
+	url = "shuangbi.zhang@hotmail.com"
+	title = "HKSeX 最新上市公司公告 from OAAutomation Tool"
+	body = 'HelloWorld'
+
+	filter_keywords_in_response(noko, keywords, @hash)
+	write_report_to_xlsx('simple.xlsx', @hash)
+
+
+	UserMailer.send_report_email(url, title, body,@hash).deliver
 
 	response do |format| 
 		format.js
@@ -106,6 +90,36 @@ private
 	  else
 	    response.error!
 	  end
+	end
+
+	def filter_keywords_in_response(response, keywords, hash)
+		# Get all the links from response
+		response.css('tr.row0, tr.row1').each do |tablerow|
+		  company_name =  tablerow.css('td')[2].text
+		  notice = tablerow.css('div#hdLine').text
+	      news = tablerow.css('a.news').text
+	      href = tablerow.css('a.news')[0]['href']
+
+		  keywords.each do |word|
+			if notice.include? word
+				hash["#{company_name}"] = notice + ';' + news + ';' + 'http://www.hkexnews.hk' + href
+				break
+			end
+		  end
+		end
+	end
+
+	def write_report_to_xlsx(filename, hash)
+		Axlsx::Package.new do |p|
+		  p.workbook.add_worksheet(:name => "HKEx") do |sheet|
+			sheet.add_row ["Event Type", "Board Name", "PDF Source Link"]
+			hash.each do |key, value| 
+				news_array = value.split(';')
+				sheet.add_row [key, news_array[0], news_array[2]]
+			end
+		  end
+		  p.serialize(filename)
+		end
 	end
 end
 

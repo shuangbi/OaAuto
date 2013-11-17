@@ -1,0 +1,29 @@
+<div id="response">
+	<div class="progress progress-striped active" id="progressouter">
+	   <div class="bar" id="progress"></div>
+	</div>
+	<table id="tab" class="table table-bordered table-striped table-condensed">
+		<thead>
+			<tr>
+				<th>股份名稱</th>
+				<th>文件類型</th>
+				<th>文档链接</th>
+			</tr>
+		</thead>
+		<tbody id='tbody'>
+			<% @hash.each do |key, value| %>
+				<% news_array = value.split(';') %>
+				<tr>
+					<td><%= j key %></td>
+					<td><%= j news_array[0] %><%= j news_array[1] %></td>
+					<td><%= link_to news_array[2], news_array[2], :target => "_blank" %></td>
+				</tr>
+			<% end %>
+			<tr id='last', class="hidden">
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+		</tbody>
+	</table>
+</div

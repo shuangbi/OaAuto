@@ -84,8 +84,8 @@ private
 
 	  #start TCP/IP
 	  proxy_index = 1
-	  response = Net::HTTP.new(url.host, url.port, proxy_addr[proxy_index], proxy_port[proxy_index]).start { |http|
-	  # response = Net::HTTP.new(url.host, url.port, nil, nil).start { |http|
+	  # response = Net::HTTP.new(url.host, url.port, proxy_addr[proxy_index], proxy_port[proxy_index]).start { |http|
+	  response = Net::HTTP.new(url.host, url.port, nil, nil).start { |http|
 	    # always proxy via your.proxy.addr:8080
 		http.request(req)
 	  }

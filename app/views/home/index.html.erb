@@ -1,4 +1,10 @@
+<h1>OA Automation</h1>
+<p>Click <span><%= link_to "Start", home_start_path, :remote => true, :id => :start %></span> to fetch data</p>
+
 <div id="response">
+	<div class="progress progress-striped active" id="progressouter">
+	   <div class="bar" id="progress"></div>
+	</div>
 	<table id="tab" class="table table-bordered table-striped table-condensed">
 		<thead>
 			<tr>
@@ -16,3 +22,25 @@
 		</tbody>
 	</table>
 </div>
+
+<script>
+	$("#start").on('click', function(){
+	  var progresspump = setInterval(function(){
+	    /* query the completion percentage from the server */
+	    // $.get("/app/update-progress", function(data){
+	      
+	      /* update the progress bar width */
+	      var data = 50;
+	      $("#progress").css('width',data+'%');
+	      /* and display the numeric value */
+	      $("#progress").html(data+'%');
+
+	      /* test to see if the job has completed */
+	      if(data > 99.999) {
+	        clearInterval(progresspump);
+	        $("#progressouter").removeClass("active");
+	        $("#progress").html("Done");
+	      }
+	    // })
+	  }, 1000);});
+</script>
